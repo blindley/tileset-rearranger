@@ -214,42 +214,9 @@ fn compile_shader(code: &str, type_: gl::types::GLenum) -> u32 {
 
 mod shader_code {
     pub const VERTEX_SHADER_SOURCE: &str =
-        "\
-        #version 330 core\n\
-        layout (location = 0) in vec2 pos;\n\
-        layout (location = 1) in vec2 tcoords;\n\
-        \
-        out vec2 vtcoords;\n\
-        uniform float aspect_ratio;\n\
-        uniform float infobox_height;\n\
-        \
-        void main() {\n\
-            float hscale = 1.0f;
-            float vscale = 1.0f / aspect_ratio;
-            if (aspect_ratio < 1.0f) {
-                vscale = 1.0f;
-                hscale = aspect_ratio;
-            }
-
-            vscale = vscale * (2.0f - infobox_height) / 2.0f;
-            float x = pos.x * hscale;
-            float y = pos.y * vscale + infobox_height / 2.0f;
-            gl_Position = vec4(x, y, 0.0, 1.0);\n\
-            vtcoords = tcoords;
-        }\n\
-        \0";
+        concat!(include_str!("shaders/tileset_renderer_vtx.glsl"), "\0");
 
     pub const FRAGMENT_SHADER_SOURCE: &str =
-        "\
-        #version 330 core\n\
-        in vec2 vtcoords;\n\
-        out vec4 fcolor;\n\
-        \
-        uniform sampler2D texture0;\n\
-        \
-        void main() {\n\
-            fcolor = texture(texture0, vtcoords);\n\
-        }\n\
-        \0";
+        concat!(include_str!("shaders/tileset_renderer_frag.glsl"), "\0");
 }
 
