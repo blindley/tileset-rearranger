@@ -68,7 +68,7 @@ struct AppData {
 impl AppData {
     fn new() -> AppData {
         let tileset_renderer = TilesetRenderer::new();
-        let rectangle_renderer = RectangleRenderer::new();
+        let rectangle_renderer = RectangleRenderer::new([-0.75, -0.5, 0.75, 0.5]);
     
         let app_data = AppData {
             window_size: [1,1],

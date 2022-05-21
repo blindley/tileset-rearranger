@@ -6,9 +6,9 @@ pub struct RectangleRenderer {
 }
 
 impl RectangleRenderer {
-    pub fn new() -> RectangleRenderer {
+    pub fn new(coords: [f32;4]) -> RectangleRenderer {
         let program = create_program();
-        let vertex_array = create_vertex_array();
+        let vertex_array = create_vertex_array(coords);
 
         RectangleRenderer {
             program,
@@ -48,20 +48,18 @@ struct BufferData {
     vertex_array: u32,
 }
 
-fn create_vertex_array() -> BufferData {
+fn create_vertex_array(coords: [f32;4]) -> BufferData {
     unsafe {
         let (mut buffer, mut vertex_array) = (0, 0);
 
-        let offset: f32 = 0.5;
-
         let vertices = [
             // position  // tex coords
-            -offset,  offset,  0.0,    0.0,        // top left 
-             offset,  offset,  offset, 0.0,        // top right
-            -offset, -offset,  0.0,    offset,     // bottom left
-            -offset, -offset,  0.0,    offset,     // bottom left
-             offset,  offset,  offset, 0.0,        // top right
-             offset, -offset,  offset, offset,     // bottom right
+            coords[0], coords[1],  0.0, 0.0,     // top left 
+            coords[2], coords[1],  0.0, 0.0,     // top right
+            coords[0], coords[3],  0.0, 0.0,     // bottom left
+            coords[0], coords[3],  0.0, 0.0,     // bottom left
+            coords[2], coords[1],  0.0, 0.0,     // top right
+            coords[2], coords[3],  0.0, 0.0,     // bottom right
         ];
 
         let _: f32 = vertices[0]; // dumb hack to force vertices to be array of f32
