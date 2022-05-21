@@ -1,5 +1,8 @@
 mod tileset_renderer;
+mod rectangle_renderer;
+
 use tileset_renderer::TilesetRenderer;
+use rectangle_renderer::RectangleRenderer;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let el = glutin::event_loop::EventLoop::new();
@@ -59,15 +62,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 struct AppData {
     window_size: [i32;2],
     tileset_renderer: TilesetRenderer,
+    rectangle_renderer: RectangleRenderer,
 }
 
 impl AppData {
     fn new() -> AppData {
         let tileset_renderer = TilesetRenderer::new();
+        let rectangle_renderer = RectangleRenderer::new();
     
         let app_data = AppData {
             window_size: [1,1],
             tileset_renderer,
+            rectangle_renderer,
         };
 
         app_data
@@ -75,11 +81,13 @@ impl AppData {
 
     fn redraw(&self) {
         self.tileset_renderer.render();
+        self.rectangle_renderer.render();
     }
 
     fn resize_window(&mut self, size: [i32;2]) {
         self.window_size = size;
         self.tileset_renderer.on_window_resize(size);
+        self.rectangle_renderer.on_window_resize(size);
         
         unsafe { gl::Viewport(0, 0, size[0], size[1]); }
     }
