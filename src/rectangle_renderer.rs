@@ -51,42 +51,42 @@ impl RectangleRenderer {
             let location = gl::GetUniformLocation(self.program,
                 "infobox_height\0".as_ptr() as _);
                 gl::Uniform1f(location, infobox_height);
-            }
         }
     }
+}
+
+struct BufferData {
+    #[allow(dead_code)]
+    buffer: u32,
+    vertex_array: u32,
+}
     
-    struct BufferData {
-        #[allow(dead_code)]
-        buffer: u32,
-        vertex_array: u32,
-    }
-    
-    fn create_vertex_array(coords: [f32;4], color: [f32;4]) -> BufferData {
-        unsafe {
-            let (mut buffer, mut vertex_array) = (0, 0);
+fn create_vertex_array(coords: [f32;4], color: [f32;4]) -> BufferData {
+    unsafe {
+        let (mut buffer, mut vertex_array) = (0, 0);
+        
+        let vertices = [
+            // position  // tex coords
+            coords[0], coords[1], color[0], color[1], color[2], color[3],     // top left 
+            coords[2], coords[1], color[0], color[1], color[2], color[3],     // top right
+            coords[0], coords[3], color[0], color[1], color[2], color[3],     // bottom left
+            coords[0], coords[3], color[0], color[1], color[2], color[3],     // bottom left
+            coords[2], coords[1], color[0], color[1], color[2], color[3],     // top right
+            coords[2], coords[3], color[0], color[1], color[2], color[3],     // bottom right
+        ];
+
+        let _: f32 = vertices[0]; // dumb hack to force vertices to be array of f32
+        
+        gl::GenVertexArrays(1, &mut vertex_array);
+        gl::GenBuffers(1, &mut buffer);
+        
+        gl::BindVertexArray(vertex_array);
+        
+        gl::BindBuffer(gl::ARRAY_BUFFER, buffer);
+        let size = std::mem::size_of_val(&vertices) as _;
+        let ptr = vertices.as_ptr() as _;
+        gl::BufferData(gl::ARRAY_BUFFER, size, ptr, gl::STATIC_DRAW);
             
-            let vertices = [
-                // position  // tex coords
-                coords[0], coords[1], color[0], color[1], color[2], color[3],     // top left 
-                coords[2], coords[1], color[0], color[1], color[2], color[3],     // top right
-                coords[0], coords[3], color[0], color[1], color[2], color[3],     // bottom left
-                coords[0], coords[3], color[0], color[1], color[2], color[3],     // bottom left
-                coords[2], coords[1], color[0], color[1], color[2], color[3],     // top right
-                coords[2], coords[3], color[0], color[1], color[2], color[3],     // bottom right
-                ];
-                
-                let _: f32 = vertices[0]; // dumb hack to force vertices to be array of f32
-                
-                gl::GenVertexArrays(1, &mut vertex_array);
-                gl::GenBuffers(1, &mut buffer);
-                
-                gl::BindVertexArray(vertex_array);
-                
-                gl::BindBuffer(gl::ARRAY_BUFFER, buffer);
-                let size = std::mem::size_of_val(&vertices) as _;
-                let ptr = vertices.as_ptr() as _;
-                gl::BufferData(gl::ARRAY_BUFFER, size, ptr, gl::STATIC_DRAW);
-                
         let stride = (6 * std::mem::size_of::<f32>()) as _;
 
         let ptr = 0 as _;
