@@ -5,27 +5,21 @@ pub struct RectangleRenderer {
     vertex_array: u32,
     
     num_vertices: i32,
+    draw_type: gl::types::GLenum,
 }
 
 impl RectangleRenderer {
     pub fn new(rectangle: Rectangle) -> RectangleRenderer {
         let program = create_program();
-        
-        let vertex_array = match rectangle.style {
-            RectStyle::Solid => {
-                create_vertex_array(rectangle.coords, rectangle.color)
-            }
-            
-            RectStyle::Border(_border_size) => {
-                panic!("oops")
-            }
-        };
+
+        let vertex_array = create_vertex_array(rectangle);
         
         RectangleRenderer {
             program,
             vertex_array: vertex_array.vertex_array,
             
-            num_vertices: 6,
+            num_vertices: vertex_array.num_vertices,
+            draw_type: vertex_array.draw_type,
         }
     }
     
@@ -34,7 +28,7 @@ impl RectangleRenderer {
             gl::UseProgram(self.program);
             
             gl::BindVertexArray(self.vertex_array);
-            gl::DrawArrays(gl::TRIANGLES, 0, self.num_vertices);
+            gl::DrawArrays(self.draw_type, 0, self.num_vertices);
         }
     }
     
@@ -59,14 +53,29 @@ struct BufferData {
     #[allow(dead_code)]
     buffer: u32,
     vertex_array: u32,
+
+    num_vertices: i32,
+    draw_type: gl::types::GLenum,
+}
+
+fn create_vertex_array(rectangle: Rectangle) -> BufferData {
+    match rectangle.style {
+        RectStyle::Solid => {
+            create_solid_rectangle_vertex_array(rectangle.coords, rectangle.color)
+        }
+
+        RectStyle::Border => {
+            create_border_rectangle_vertex_array(rectangle.coords, rectangle.color)
+        }
+    }
 }
     
-fn create_vertex_array(coords: [f32;4], color: [f32;4]) -> BufferData {
+fn create_solid_rectangle_vertex_array(coords: [f32;4], color: [f32;4]) -> BufferData {
     unsafe {
         let (mut buffer, mut vertex_array) = (0, 0);
         
         let vertices = [
-            // position  // tex coords
+            // position           // color
             coords[0], coords[1], color[0], color[1], color[2], color[3],     // top left 
             coords[2], coords[1], color[0], color[1], color[2], color[3],     // top right
             coords[0], coords[3], color[0], color[1], color[2], color[3],     // bottom left
@@ -104,6 +113,54 @@ fn create_vertex_array(coords: [f32;4], color: [f32;4]) -> BufferData {
         BufferData {
             buffer,
             vertex_array,
+
+            num_vertices: 6,
+            draw_type: gl::TRIANGLES,
+        }
+    }
+}
+
+fn create_border_rectangle_vertex_array(coords: [f32;4], color: [f32;4]) -> BufferData {
+    unsafe {
+        let (mut buffer, mut vertex_array) = (0, 0);
+
+        let vertices = [
+            coords[0], coords[1], color[0], color[1], color[2], color[3],
+            coords[2], coords[1], color[0], color[1], color[2], color[3],
+            coords[2], coords[3], color[0], color[1], color[2], color[3],
+            coords[0], coords[3], color[0], color[1], color[2], color[3],
+        ];
+
+        gl::GenVertexArrays(1, &mut vertex_array);
+        gl::GenBuffers(1, &mut buffer);
+        
+        gl::BindVertexArray(vertex_array);
+        
+        gl::BindBuffer(gl::ARRAY_BUFFER, buffer);
+        let size = std::mem::size_of_val(&vertices) as _;
+        let ptr = vertices.as_ptr() as _;
+        gl::BufferData(gl::ARRAY_BUFFER, size, ptr, gl::STATIC_DRAW);
+            
+        let stride = (6 * std::mem::size_of::<f32>()) as _;
+
+        let ptr = 0 as _;
+        gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, stride, ptr);
+        gl::EnableVertexAttribArray(0);
+        
+        let ptr = (2 * std::mem::size_of::<f32>()) as _;
+        gl::VertexAttribPointer(1, 2, gl::FLOAT, gl::FALSE, stride, ptr);
+        gl::EnableVertexAttribArray(1);
+        
+        gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+        
+        gl::BindVertexArray(0);
+        
+        BufferData {
+            buffer,
+            vertex_array,
+
+            num_vertices: 4,
+            draw_type: gl::LINE_LOOP,
         }
     }
 }
@@ -155,7 +212,7 @@ fn compile_shader(code: &str, type_: gl::types::GLenum) -> u32 {
 #[derive(Debug, Clone, Copy)]
 pub enum RectStyle {
     Solid,
-    Border(f32),
+    Border,
 }
 
 #[derive(Debug, Clone, Copy)]

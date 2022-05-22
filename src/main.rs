@@ -72,7 +72,7 @@ impl AppData {
         let rect = rectangle_renderer::Rectangle {
             coords: [-0.75, -0.5, 0.75, 0.5],
             color: [1.0, 1.0, 0.2, 1.0],
-            style: rectangle_renderer::RectStyle::Solid,
+            style: rectangle_renderer::RectStyle::Border,
         };
 
         let rectangle_renderer = RectangleRenderer::new(rect);
