@@ -45,39 +45,6 @@ impl TilesetRenderer {
     }
 
     pub fn set_render_area(&self, window_size: [f32;2], render_area: [f32;4]) {
-        let _ = (window_size, render_area, self.image_size);
-
-        // let render_area_width = render_area[2] - render_area[0];
-        // let render_area_height = render_area[3] - render_area[1];
-        // let render_area_aspect_ratio = render_area_width / render_area_height;
-
-        // let image_aspect_ratio =
-        //     (self.image_size[0] as f32) / (self.image_size[1] as f32);
-        // let aspect_ratio = image_aspect_ratio / render_area_aspect_ratio;
-
-        // let mut adjusted_render_area = render_area;
-        // if aspect_ratio > 1.0 {
-        //     let scale_factor = render_area_width / self.image_size[0];
-        //     adjusted_render_area[0] = render_area[0];
-        //     adjusted_render_area[2] = render_area[2];
-
-        //     let render_area_vert_center = (render_area[3] - render_area[1]) / 2.0;
-        //     adjusted_render_area[1]
-        //         = render_area_vert_center - render_area_height * scale_factor / 2.0;
-        //     adjusted_render_area[3]
-        //         = render_area_vert_center + render_area_height * scale_factor / 2.0;
-        // } else {
-        //     let scale_factor = render_area_height / self.image_size[1];
-        //     adjusted_render_area[1] = render_area[1];
-        //     adjusted_render_area[3] = render_area[3];
-
-        //     let render_area_horz_center = (render_area[2] - render_area[0]) / 2.0;
-        //     adjusted_render_area[0]
-        //         = render_area_horz_center - render_area_width * scale_factor / 2.0;
-        //     adjusted_render_area[2]
-        //         = render_area_horz_center + render_area_width * scale_factor / 2.0;
-        // }
-
         let x1 = 2.0 * render_area[0] / window_size[0] - 1.0;
         let x2 = 2.0 * render_area[2] / window_size[0] - 1.0;
         let y1 = 2.0 * render_area[1] / window_size[1] - 1.0;
@@ -85,38 +52,11 @@ impl TilesetRenderer {
 
         let gl_render_area = [x1, y1, x2, y2];
 
-        dbg!(gl_render_area);
-
         unsafe {
             gl::UseProgram(self.program);
             let location = gl::GetUniformLocation(self.program,
                 "render_area\0".as_ptr() as _);
             gl::Uniform4fv(location, 1, gl_render_area.as_ptr());
-        }
-    }
-
-    pub fn _on_window_resize(&self, window_size: [i32;2]) {
-        let infobox_height = 32.0;
-
-        let window_aspect_ratio =
-            (window_size[0] as f32) / (window_size[1] as f32);
-        let image_aspect_ratio =
-            (self.image_size[0] as f32) / (self.image_size[1] as f32 - infobox_height);
-        let aspect_ratio = image_aspect_ratio / window_aspect_ratio;
-
-        unsafe {
-            gl::UseProgram(self.program);
-            let location = gl::GetUniformLocation(self.program,
-                "aspect_ratio\0".as_ptr() as _);
-            gl::Uniform1f(location, aspect_ratio);
-        }
-
-        let infobox_height = 2.0 * infobox_height / (window_size[1] as f32);
-        unsafe {
-            gl::UseProgram(self.program);
-            let location = gl::GetUniformLocation(self.program,
-                "infobox_height\0".as_ptr() as _);
-            gl::Uniform1f(location, infobox_height);
         }
     }
 }

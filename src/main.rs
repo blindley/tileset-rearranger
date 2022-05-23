@@ -106,7 +106,7 @@ impl AppData {
 
         self.tileset_renderer.set_render_area(size_f32, render_area);
 
-        self.rectangle_renderer.on_window_resize(size);
+        self.rectangle_renderer.on_window_resize(size_f32);
         
         unsafe { gl::Viewport(0, 0, size[0], size[1]); }
     }

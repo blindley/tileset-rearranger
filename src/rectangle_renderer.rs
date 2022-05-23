@@ -32,20 +32,8 @@ impl RectangleRenderer {
         }
     }
     
-    pub fn on_window_resize(&self, window_size: [i32;2]) {
-        let infobox_height = 32.0;
-        
-        unsafe {
-            gl::UseProgram(self.program);
-        }
-
-        let infobox_height = 2.0 * infobox_height / (window_size[1] as f32);
-        unsafe {
-            gl::UseProgram(self.program);
-            let location = gl::GetUniformLocation(self.program,
-                "infobox_height\0".as_ptr() as _);
-                gl::Uniform1f(location, infobox_height);
-        }
+    pub fn on_window_resize(&self, window_size: [f32;2]) {
+        let _ = window_size;
     }
 }
 
