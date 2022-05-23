@@ -93,7 +93,19 @@ impl AppData {
 
     fn resize_window(&mut self, size: [i32;2]) {
         self.window_size = size;
-        self.tileset_renderer.on_window_resize(size);
+        let size_f32 = [size[0] as f32, size[1] as f32];
+
+        let render_area = {
+            let x1 = size_f32[0] / 8.0;
+            let y1 = size_f32[1] / 4.0;
+            let x2 = x1 * 7.0;
+            let y2 = y1 * 3.0;
+
+            [x1, y1, x2, y2]
+        };
+
+        self.tileset_renderer.set_render_area(size_f32, render_area);
+
         self.rectangle_renderer.on_window_resize(size);
         
         unsafe { gl::Viewport(0, 0, size[0], size[1]); }
